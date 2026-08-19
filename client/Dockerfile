@@ -2,6 +2,9 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
+ARG PUBLIC_SERVER_URL
+ENV PUBLIC_SERVER_URL=$PUBLIC_SERVER_URL
+
 RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
