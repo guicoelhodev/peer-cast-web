@@ -27,7 +27,7 @@
 	let localStream: MediaStream | null = null;
 	let participants: Participant[] = [];
 	let messages: ChatMessage[] = [];
-	let chatOpen = false;
+	let chatOpen = true;
 	let unread = 0;
 	let quality: QualityPresetId = DEFAULT_QUALITY_PRESET_ID;
 	let microphoneMuted = false;
