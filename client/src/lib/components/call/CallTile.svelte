@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
+  import CallAudioTrack from "./CallAudioTrack.svelte";
   import CallAvatar from "./CallAvatar.svelte";
   import type { CallParticipant } from "./types";
   let {
@@ -18,10 +19,10 @@
     onMuteChange?: (muted: boolean) => void;
   } = $props();
   let media: HTMLVideoElement;
-  let audioMedia = $state<HTMLAudioElement>();
   let tile: HTMLElement;
   let fullscreenAvailable = $state(false);
   let videoAvailable = $state(false);
+  let audioTracks = $state<MediaStreamTrack[]>([]);
   let isSpeaking = $state(false);
   let volume = $state(1);
   let remoteMuted = $state(false);
@@ -55,9 +56,10 @@
         track.addEventListener("unmute", update);
         track.addEventListener("ended", update);
       }
-      videoAvailable =
-        participant.videoState !== "off" &&
-        tracks.some((track) => track.readyState === "live" && track.enabled);
+      videoAvailable = tracks.some(
+        (track) => track.readyState === "live" && track.enabled,
+      );
+      if (media?.srcObject !== stream) media.srcObject = stream ?? null;
       const playback = videoAvailable && media ? media.play?.() : undefined;
       if (playback) void playback.catch(() => undefined);
     };
@@ -72,6 +74,27 @@
         stream.removeEventListener("removetrack", update);
       }
       for (const track of tracks) removeTrackListeners(track);
+    };
+  });
+  $effect(() => {
+    const stream = participant.audioStream;
+    const update = () => {
+      audioTracks =
+        stream
+          ?.getAudioTracks()
+          .filter((track) => track.readyState === "live") ?? [];
+    };
+    update();
+    if (typeof stream?.addEventListener === "function") {
+      stream.addEventListener("addtrack", update);
+      stream.addEventListener("removetrack", update);
+    }
+    return () => {
+      if (typeof stream?.removeEventListener === "function") {
+        stream.removeEventListener("addtrack", update);
+        stream.removeEventListener("removetrack", update);
+      }
+      audioTracks = [];
     };
   });
   $effect(() => {
@@ -144,40 +167,6 @@
       if (media.srcObject === stream) media.srcObject = null;
     };
   });
-  $effect(() => {
-    const audio = audioMedia;
-    if (!audio) return;
-    const stream = participant.audioStream ?? null;
-    const play = () => {
-      const playback =
-        stream?.getAudioTracks().length && !audio.muted
-          ? audio.play?.()
-          : undefined;
-      if (playback) void playback.catch(() => undefined);
-    };
-    audio.srcObject = stream;
-    play();
-    if (typeof stream?.addEventListener === "function") {
-      stream.addEventListener("addtrack", play);
-      stream.addEventListener("removetrack", play);
-    }
-    return () => {
-      if (typeof stream?.removeEventListener === "function") {
-        stream.removeEventListener("addtrack", play);
-        stream.removeEventListener("removetrack", play);
-      }
-      if (audio.srcObject === stream) audio.srcObject = null;
-    };
-  });
-  $effect(() => {
-    const audio = audioMedia;
-    if (!audio) return;
-    audio.muted = remoteMuted;
-    audio.volume = volume;
-    const playback =
-      audio.srcObject && !remoteMuted ? audio.play?.() : undefined;
-    if (playback) void playback.catch(() => undefined);
-  });
   function activateFocus(event?: MouseEvent) {
     if (
       event?.target instanceof Element &&
@@ -203,12 +192,10 @@
   function changeVolume(event: Event) {
     event.stopPropagation();
     volume = Number((event.currentTarget as HTMLInputElement).value);
-    if (audioMedia) audioMedia.volume = volume;
     onVolumeChange?.(volume);
   }
   function toggleMute() {
     remoteMuted = !remoteMuted;
-    if (audioMedia) audioMedia.muted = remoteMuted;
     onMuteChange?.(remoteMuted);
   }
 </script>
@@ -302,13 +289,9 @@
     muted
     aria-label={`${participant.displayName} video`}
   ></video>
-  {#if !local}<audio
-      class="hidden"
-      bind:this={audioMedia}
-      autoplay
-      playsinline
-      aria-label={`${participant.displayName} audio`}
-    ></audio>{/if}
+  {#if !local}{#each audioTracks as track (track.id)}
+      <CallAudioTrack {track} muted={remoteMuted} {volume} />
+    {/each}{/if}
   {#if isSpeaking}<span
       class={`speaking absolute right-2 z-10 rounded-full border border-emerald-400/50 bg-slate-950/74 px-2 py-[.2rem] text-[.625rem] text-emerald-200 backdrop-blur-sm ${local ? "bottom-2" : "bottom-13"}`}
       aria-label={`${participant.displayName} is speaking`}>Speaking</span
