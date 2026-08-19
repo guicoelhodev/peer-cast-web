@@ -92,6 +92,15 @@ function parseMessage(value: unknown): SignalMessage | null {
         isTimestamp(value.sentAt)
         ? (value as SignalMessage)
         : null;
+    case "chat-history-request":
+      return value.peerId && Object.keys(value).length === 2
+        ? (value as SignalMessage)
+        : null;
+    case "chat-history":
+      return Array.isArray(value.messages) &&
+        value.messages.every(isChatMessage)
+        ? (value as SignalMessage)
+        : null;
     default:
       return null;
   }
@@ -111,8 +120,21 @@ function hasOnlyKnownFields(value: Record<string, unknown>): boolean {
     "messageId",
     "text",
     "sentAt",
+    "messages",
   ]);
   return Object.keys(value).every((key) => allowed.has(key));
+}
+
+function isChatMessage(value: unknown): boolean {
+  return isRecord(value) &&
+    Object.keys(value).every((key) => ["type", "peerId", "messageId", "text", "sentAt"].includes(key)) &&
+    value.type === "chat" &&
+    isUUID(value.peerId) &&
+    isUUID(value.messageId) &&
+    typeof value.text === "string" &&
+    value.text.length > 0 &&
+    [...value.text].length <= MAX_CHAT_MESSAGE_LENGTH &&
+    isTimestamp(value.sentAt);
 }
 
 function optionalDisplayName(value: Record<string, unknown>): boolean {

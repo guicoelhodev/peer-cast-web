@@ -118,6 +118,13 @@
 	}
 
 	async function handleMessage(message: SignalMessage): Promise<void> {
+		if (message.type === 'chat-history') {
+			messages = limitChatHistory(message.messages.map((item) => {
+				const participant = participants.find((participant) => participant.peerId === item.peerId);
+				return { id: item.messageId, peerId: item.peerId, text: item.text, sentAt: item.sentAt, isOwn: item.peerId === peerId, displayName: participant?.displayName };
+			}));
+			return;
+		}
 		if (message.type === 'chat') {
 			if (message.peerId === peerId) return;
 			const participant = participants.find((item) => item.peerId === message.peerId);

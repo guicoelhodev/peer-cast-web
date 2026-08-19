@@ -56,6 +56,17 @@ export type ChatSignal = {
   sentAt: string;
 };
 
+export type ChatHistoryRequestSignal = {
+  type: "chat-history-request";
+  peerId: string;
+};
+
+export type ChatHistorySignal = {
+  type: "chat-history";
+  peerId: string;
+  messages: ChatSignal[];
+};
+
 export type SignalMessage =
   | ReadySignal
   | ParticipantLeftSignal
@@ -64,7 +75,9 @@ export type SignalMessage =
   | IceSignal
   | MicrophoneStateSignal
   | VideoStateSignal
-  | ChatSignal;
+  | ChatSignal
+  | ChatHistoryRequestSignal
+  | ChatHistorySignal;
 
 export type TargetedSignal = OfferSignal | AnswerSignal | IceSignal;
 

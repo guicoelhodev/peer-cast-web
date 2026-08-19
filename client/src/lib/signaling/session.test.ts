@@ -54,7 +54,10 @@ describe("signaling session", () => {
     expect(session.send({ type: "participant-left", peerId })).toBe(false);
     sockets[0].open();
     expect(session.state).toBe("connected");
-    expect(JSON.parse(sockets[0].sent[0])).toEqual({ type: "ready", peerId });
+    expect(sockets[0].sent.map((message) => JSON.parse(message))).toEqual([
+      { type: "ready", peerId },
+      { type: "chat-history-request", peerId },
+    ]);
     sockets[0].message(JSON.stringify({ type: "participant-left", peerId }));
     sockets[0].message("{");
     expect(received).toHaveBeenCalledTimes(1);
@@ -97,7 +100,10 @@ describe("signaling session", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(sockets).toHaveLength(2);
     sockets[1].open();
-    expect(JSON.parse(sockets[1].sent[0])).toEqual({ type: "ready", peerId });
+    expect(sockets[1].sent.map((message) => JSON.parse(message))).toEqual([
+      { type: "ready", peerId },
+      { type: "chat-history-request", peerId },
+    ]);
     expect(reconnect).toHaveBeenCalledOnce();
   });
 

@@ -46,6 +46,20 @@ describe("signal protocol", () => {
         text: "Olá 🙂",
         sentAt: "2026-08-19T12:00:00Z",
       },
+      { type: "chat-history-request", peerId },
+      {
+        type: "chat-history",
+        peerId,
+        messages: [
+          {
+            type: "chat",
+            peerId: targetPeerId,
+            messageId,
+            text: "Previous message",
+            sentAt: "2026-08-19T11:00:00Z",
+          },
+        ],
+      },
     ];
 
     for (const message of messages) {
