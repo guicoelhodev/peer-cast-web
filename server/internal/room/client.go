@@ -111,6 +111,7 @@ type WebSocketClient struct {
 	connection ClientConnection
 	hub        *Hub
 	registry   *PeerRegistry
+	history    *ChatHistory
 	options    ClientOptions
 
 	ctx    context.Context
@@ -128,7 +129,7 @@ type WebSocketClient struct {
 	pumps      sync.WaitGroup
 }
 
-func NewWebSocketClient(connection ClientConnection, hub *Hub, registry *PeerRegistry, options ClientOptions) *WebSocketClient {
+func NewWebSocketClient(connection ClientConnection, hub *Hub, registry *PeerRegistry, options ClientOptions, histories ...*ChatHistory) *WebSocketClient {
 	options = options.withDefaults()
 	ctx, cancel := context.WithCancel(context.Background())
 	client := &WebSocketClient{
@@ -140,6 +141,9 @@ func NewWebSocketClient(connection ClientConnection, hub *Hub, registry *PeerReg
 		ctx:        ctx,
 		cancel:     cancel,
 		done:       make(chan struct{}),
+	}
+	if len(histories) > 0 {
+		client.history = histories[0]
 	}
 	if setter, ok := connection.(readLimitSetter); ok {
 		setter.SetReadLimit(int64(options.MaxPayloadBytes))
@@ -195,7 +199,7 @@ func (c *WebSocketClient) readPump() {
 		}
 
 		peerID := c.PeerID()
-		_, associatedPeerID, err := ValidateClientMessage(payload, peerID, c.options.MaxPayloadBytes)
+		message, associatedPeerID, err := ValidateClientMessage(payload, peerID, c.options.MaxPayloadBytes)
 		if err != nil {
 			continue
 		}
@@ -210,6 +214,20 @@ func (c *WebSocketClient) readPump() {
 			for _, ready := range c.registry.ReadyMessages(c) {
 				c.hub.Deliver(c.Client, ready)
 			}
+		}
+		if message.Type == MessageChatHistoryRequest {
+			response, err := json.Marshal(Message{
+				Type:     MessageChatHistory,
+				PeerID:   associatedPeerID,
+				Messages: c.history.Messages(),
+			})
+			if err == nil {
+				c.hub.Deliver(c.Client, response)
+			}
+			continue
+		}
+		if message.Type == MessageChat {
+			c.history.Add(message)
 		}
 		c.hub.Broadcast(c.Client, payload)
 	}

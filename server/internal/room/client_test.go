@@ -157,6 +157,29 @@ func TestWebSocketClientSerializesWritesAndPings(t *testing.T) {
 	waitClientDone(t, client)
 }
 
+func TestWebSocketClientDeliversChatHistoryOnlyToRequester(t *testing.T) {
+	hub := NewHub(nil, nil)
+	defer hub.Close()
+	history := &ChatHistory{}
+	history.Add(Message{Type: MessageChat, PeerID: targetID, MessageID: messageID, Text: "previous", SentAt: "2026-08-19T12:00:00Z"})
+	connection := newFakeConnection()
+	client := NewWebSocketClient(connection, hub, NewPeerRegistry(), ClientOptions{}, history)
+	if !client.Start() {
+		t.Fatal("could not start client")
+	}
+	connection.reads <- clientPayload(t, Message{Type: MessageReady, PeerID: peerID})
+	connection.reads <- clientPayload(t, Message{Type: MessageChatHistoryRequest, PeerID: peerID})
+	var response Message
+	if err := json.Unmarshal(<-connection.writes, &response); err != nil {
+		t.Fatal(err)
+	}
+	if response.Type != MessageChatHistory || response.PeerID != peerID || len(response.Messages) != 1 || response.Messages[0].Text != "previous" {
+		t.Fatalf("history response = %+v", response)
+	}
+	client.Close()
+	waitClientDone(t, client)
+}
+
 func TestWebSocketClientRejectsDuplicatePeerID(t *testing.T) {
 	hub := NewHub(nil, nil)
 	defer hub.Close()

@@ -70,7 +70,7 @@ func NewRouter(manager *room.Manager, options RouterOptions) http.Handler {
 		}
 		client := room.NewWebSocketClient(websocketConnection{conn}, existingRoom.Hub, existingRoom.Registry, room.ClientOptions{
 			MaxPayloadBytes: int(options.MaxWSMessageBytes),
-		})
+		}, existingRoom.History)
 		if !client.Start() {
 			_ = conn.Close(websocket.StatusInternalError, "could not register client")
 			return

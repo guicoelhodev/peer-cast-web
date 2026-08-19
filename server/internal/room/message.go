@@ -24,7 +24,9 @@ const (
 	MessageICE             = "ice"
 	MessageMicrophoneState = "microphone-state"
 	MessageVideoState      = "video-state"
-	MessageChat            = "chat"
+	MessageChat               = "chat"
+	MessageChatHistoryRequest = "chat-history-request"
+	MessageChatHistory        = "chat-history"
 )
 
 type ErrorKind string
@@ -66,6 +68,14 @@ type ICECandidate struct {
 	UsernameFragment *string `json:"usernameFragment,omitempty"`
 }
 
+type ChatMessage struct {
+	Type      string `json:"type"`
+	PeerID    string `json:"peerId"`
+	MessageID string `json:"messageId"`
+	Text      string `json:"text"`
+	SentAt    string `json:"sentAt"`
+}
+
 type Message struct {
 	Type            string              `json:"type"`
 	PeerID          string              `json:"peerId,omitempty"`
@@ -79,6 +89,7 @@ type Message struct {
 	MessageID       string              `json:"messageId,omitempty"`
 	Text            string              `json:"text,omitempty"`
 	SentAt          string              `json:"sentAt,omitempty"`
+	Messages        []ChatMessage       `json:"messages"`
 }
 
 var uuidPattern = regexp.MustCompile(`^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$`)
@@ -112,6 +123,9 @@ func ValidateClientMessage(payload []byte, associatedPeerID string, maxPayloadBy
 		return Message{}, associatedPeerID, err
 	}
 	if message.Type == MessageParticipantLeft {
+		return Message{}, associatedPeerID, ErrInvalidPayload
+	}
+	if message.Type == MessageChatHistory {
 		return Message{}, associatedPeerID, ErrInvalidPayload
 	}
 	if associatedPeerID == "" {
@@ -162,6 +176,19 @@ func validateMessage(message Message) error {
 	case MessageChat:
 		if !validUUID(message.PeerID) || !validUUID(message.MessageID) || message.Text == "" || utf8.RuneCountInString(message.Text) > MaxChatTextRunes || !validTimestamp(message.SentAt) {
 			return ErrInvalidPayload
+		}
+	case MessageChatHistoryRequest:
+		if !validUUID(message.PeerID) {
+			return ErrInvalidPayload
+		}
+	case MessageChatHistory:
+		if !validUUID(message.PeerID) || len(message.Messages) > MaxChatHistoryMessages {
+			return ErrInvalidPayload
+		}
+		for _, item := range message.Messages {
+			if item.Type != MessageChat || !validUUID(item.PeerID) || !validUUID(item.MessageID) || item.Text == "" || utf8.RuneCountInString(item.Text) > MaxChatTextRunes || !validTimestamp(item.SentAt) {
+				return ErrInvalidPayload
+			}
 		}
 	default:
 		return ErrUnknownType

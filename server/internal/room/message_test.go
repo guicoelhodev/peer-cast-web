@@ -26,6 +26,8 @@ func TestValidatePayloadValidMessages(t *testing.T) {
 		{Type: MessageMicrophoneState, PeerID: peerID, MicrophoneMuted: &muted},
 		{Type: MessageVideoState, PeerID: peerID, VideoState: "screen"},
 		{Type: MessageChat, PeerID: peerID, MessageID: messageID, Text: "hello", SentAt: "2026-08-19T12:00:00Z"},
+		{Type: MessageChatHistoryRequest, PeerID: peerID},
+		{Type: MessageChatHistory, PeerID: peerID, Messages: []ChatMessage{{Type: MessageChat, PeerID: peerID, MessageID: messageID, Text: "hello", SentAt: "2026-08-19T12:00:00Z"}}},
 	}
 	for _, message := range tests {
 		t.Run(message.Type, func(t *testing.T) {

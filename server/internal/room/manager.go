@@ -11,6 +11,7 @@ type Room struct {
 	ID       string
 	Hub      *Hub
 	Registry *PeerRegistry
+	History  *ChatHistory
 
 	empty      bool
 	expiration *time.Timer
@@ -52,6 +53,7 @@ func (m *Manager) Create() (*Room, error) {
 		room := &Room{
 			ID:       id,
 			Registry: NewPeerRegistry(),
+			History:  &ChatHistory{},
 			empty:    true,
 		}
 		room.Hub = m.newHub(
