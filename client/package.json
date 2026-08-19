@@ -15,11 +15,11 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",
-    "@testing-library/svelte": "^5.2.8",
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.20.8",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/vite": "^4.1.10",
+    "@testing-library/svelte": "^5.2.8",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "prettier-plugin-svelte": "^3.4.0",
@@ -29,5 +29,8 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@iconify/svelte": "^5.2.2"
   }
 }
