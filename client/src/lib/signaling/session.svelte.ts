@@ -136,7 +136,10 @@ export class SignalingSession {
     this.retryCount = 0;
     this.setState("connected");
     if (!this.send(this.options.ready)) return;
-    this.send({ type: "chat-history-request", peerId: this.options.ready.peerId });
+    this.send({
+      type: "chat-history-request",
+      peerId: this.options.ready.peerId,
+    });
     if (this.hasConnected) this.options.onReconnect?.();
     this.hasConnected = true;
   }

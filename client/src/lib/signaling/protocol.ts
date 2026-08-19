@@ -126,15 +126,19 @@ function hasOnlyKnownFields(value: Record<string, unknown>): boolean {
 }
 
 function isChatMessage(value: unknown): boolean {
-  return isRecord(value) &&
-    Object.keys(value).every((key) => ["type", "peerId", "messageId", "text", "sentAt"].includes(key)) &&
+  return (
+    isRecord(value) &&
+    Object.keys(value).every((key) =>
+      ["type", "peerId", "messageId", "text", "sentAt"].includes(key),
+    ) &&
     value.type === "chat" &&
     isUUID(value.peerId) &&
     isUUID(value.messageId) &&
     typeof value.text === "string" &&
     value.text.length > 0 &&
     [...value.text].length <= MAX_CHAT_MESSAGE_LENGTH &&
-    isTimestamp(value.sentAt);
+    isTimestamp(value.sentAt)
+  );
 }
 
 function optionalDisplayName(value: Record<string, unknown>): boolean {

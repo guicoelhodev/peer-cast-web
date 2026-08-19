@@ -1,0 +1,6 @@
+.pnpm-store/
+.svelte-kit/
+build/
+node_modules/
+test-results/
+pnpm-lock.yaml
