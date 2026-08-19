@@ -2,34 +2,13 @@
 	import ChatComposer from './ChatComposer.svelte';
 	import ChatMessageList from './ChatMessageList.svelte';
 	import type { ChatMessage } from './types';
-
-	let {
-		open,
-		messages = [],
-		connected,
-		onOpenChange,
-		onSend
-	}: {
-		open: boolean;
-		messages?: readonly ChatMessage[];
-		connected: boolean;
-		onOpenChange: (open: boolean) => void;
-		onSend: (text: string) => void;
-	} = $props();
+	let { open, messages = [], connected, onOpenChange, onSend }: { open: boolean; messages?: readonly ChatMessage[]; connected: boolean; onOpenChange: (open: boolean) => void; onSend: (text: string) => void } = $props();
 </script>
 
 {#if open}
-	<section class="chat-panel" aria-label="Room chat">
-		<header>
-			<div><span aria-hidden="true">CHAT</span><h2>Room chat</h2></div>
-			<button type="button" onclick={() => onOpenChange(false)} aria-label="Close chat">×</button>
-		</header>
+	<section class="chat-panel flex min-h-0 w-full max-w-80 flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-900/92 max-md:fixed max-md:inset-x-0 max-md:top-12 max-md:z-30 max-md:max-w-none max-md:rounded-none max-md:pb-[env(safe-area-inset-bottom)] md:my-3 md:mr-3" aria-label="Room chat">
+		<header class="flex items-center justify-between border-b border-slate-800 px-3 py-2.5"><div class="flex items-center gap-2 text-cyan-300"><span class="text-[.6rem] font-bold tracking-[.1em]" aria-hidden="true">CHAT</span><h2 class="m-0 text-sm text-slate-200">Room chat</h2></div><button class="grid min-h-8 min-w-8 place-items-center rounded-md bg-transparent text-xl leading-none text-slate-400 hover:bg-slate-800 hover:text-slate-50 focus-visible:bg-slate-800 focus-visible:text-slate-50 focus-visible:outline-none" type="button" onclick={() => onOpenChange(false)} aria-label="Close chat">×</button></header>
 		<ChatMessageList {messages} />
 		<ChatComposer {connected} {onSend} />
 	</section>
 {/if}
-
-<style>
-	.chat-panel { display: flex; width:min(20rem,100%); min-height:0; flex-direction:column; overflow:hidden; border:1px solid #1e293b; border-radius:.75rem; background:rgb(15 23 42 /.92); }.chat-panel header { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1e293b; padding:.625rem .75rem; }.chat-panel header div { display:flex; align-items:center; gap:.5rem; color:#67e8f9; }.chat-panel header div span { font-size:.6rem; font-weight:700; letter-spacing:.1em; }.chat-panel h2 { margin:0; color:#e2e8f0; font-size:.875rem; }.chat-panel header button { display:grid; min-width:2rem; min-height:2rem; place-items:center; border:0; border-radius:.35rem; background:transparent; color:#94a3b8; font-size:1.25rem; line-height:1; }.chat-panel header button:hover,.chat-panel header button:focus-visible { background:#1e293b; color:#f8fafc; }
-	@media (max-width:767px) { .chat-panel { position:fixed; z-index:30; inset:3rem 0 0; width:auto; border-radius:0; padding-bottom:env(safe-area-inset-bottom); } }
-</style>
