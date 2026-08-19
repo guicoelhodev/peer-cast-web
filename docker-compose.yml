@@ -19,7 +19,11 @@ services:
     networks:
       - peercast
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:$${PORT}/healthz"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:$${PORT}/healthz",
+        ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -29,7 +33,12 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile.dev
-    command: ["/bin/sh", "-c", "pnpm install --frozen-lockfile && exec pnpm dev --host 0.0.0.0 --port 5173"]
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "pnpm install --frozen-lockfile && exec pnpm dev --host 0.0.0.0 --port 5173",
+      ]
     environment:
       PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-http://localhost:8080}
     ports:

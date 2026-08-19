@@ -15,16 +15,16 @@ O servidor mantem salas em memoria. Uma sala nova ou vazia expira apos o TTL; um
 
 ## Variaveis
 
-| Variavel | Padrao | Uso |
-| --- | --- | --- |
-| `CLIENT_PORT` | `5173` | Porta publicada pelo Compose para o cliente. |
-| `SERVER_PORT` | `8080` | Porta publicada pelo Compose para o servidor. |
-| `PORT` | `8080` | Porta HTTP do servidor. Inteiro entre 1 e 65535. |
-| `PUBLIC_SERVER_URL` | `http://localhost:8080` | URL HTTP(S) absoluta do servidor usada pelo navegador; o cliente deriva `ws://` ou `wss://`. |
-| `ALLOWED_ORIGINS` | `http://localhost:5173` | Origens HTTP(S) do cliente, separadas por virgula, aceitas por CORS e WebSocket. |
-| `ROOM_EMPTY_TTL` | `5m` | Duracao positiva para remover salas sem conexoes. |
-| `MAX_WS_MESSAGE_BYTES` | `65536` | Limite positivo do payload WebSocket, em bytes. |
-| `LOG_LEVEL` | `info` | Nivel do servidor: `debug`, `info`, `warn` ou `error`. |
+| Variavel               | Padrao                  | Uso                                                                                          |
+| ---------------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| `CLIENT_PORT`          | `5173`                  | Porta publicada pelo Compose para o cliente.                                                 |
+| `SERVER_PORT`          | `8080`                  | Porta publicada pelo Compose para o servidor.                                                |
+| `PORT`                 | `8080`                  | Porta HTTP do servidor. Inteiro entre 1 e 65535.                                             |
+| `PUBLIC_SERVER_URL`    | `http://localhost:8080` | URL HTTP(S) absoluta do servidor usada pelo navegador; o cliente deriva `ws://` ou `wss://`. |
+| `ALLOWED_ORIGINS`      | `http://localhost:5173` | Origens HTTP(S) do cliente, separadas por virgula, aceitas por CORS e WebSocket.             |
+| `ROOM_EMPTY_TTL`       | `5m`                    | Duracao positiva para remover salas sem conexoes.                                            |
+| `MAX_WS_MESSAGE_BYTES` | `65536`                 | Limite positivo do payload WebSocket, em bytes.                                              |
+| `LOG_LEVEL`            | `info`                  | Nivel do servidor: `debug`, `info`, `warn` ou `error`.                                       |
 
 O arquivo raiz `.env.example` e usado pelo Compose. Em execucao nativa, exporte as variaveis desejadas no shell; o servidor nao carrega arquivos `.env` automaticamente. O arquivo `client/.env.example` contem somente `PUBLIC_SERVER_URL` para desenvolvimento do cliente.
 
@@ -59,10 +59,10 @@ O Compose publica cliente em `CLIENT_PORT` e servidor em `SERVER_PORT`, monta os
 
 ## Endpoints
 
-| Metodo e caminho | Resultado |
-| --- | --- |
-| `POST /api/rooms` | Cria uma sala; responde `201` com `roomId`, `websocketPath` e `expiresInSeconds`. |
-| `GET /healthz` | Responde `200` com `{"status":"ok"}` quando o servidor esta pronto. |
+| Metodo e caminho   | Resultado                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/rooms`  | Cria uma sala; responde `201` com `roomId`, `websocketPath` e `expiresInSeconds`.                                                     |
+| `GET /healthz`     | Responde `200` com `{"status":"ok"}` quando o servidor esta pronto.                                                                   |
 | `GET /ws/{roomId}` | Faz upgrade WebSocket para uma sala existente e origem permitida; responde `404` para sala inexistente e `403` para origem bloqueada. |
 
 O healthcheck do Compose consulta `http://localhost:$PORT/healthz`. A imagem de producao do servidor tambem consulta `/healthz` internamente na porta 8080.
