@@ -1,0 +1,53 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    command: go run ./cmd/server
+    environment:
+      PORT: ${PORT:-8080}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      ROOM_EMPTY_TTL: ${ROOM_EMPTY_TTL:-5m}
+      MAX_WS_MESSAGE_BYTES: ${MAX_WS_MESSAGE_BYTES:-65536}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${SERVER_PORT:-8080}:${PORT:-8080}"
+    volumes:
+      - ./server:/app
+      - server_go_mod_cache:/go/pkg/mod
+      - server_go_build_cache:/root/.cache/go-build
+    networks:
+      - peercast
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:$${PORT}/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    command: ["/bin/sh", "-c", "pnpm install --frozen-lockfile && exec pnpm dev --host 0.0.0.0 --port 5173"]
+    environment:
+      PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-http://localhost:8080}
+    ports:
+      - "${CLIENT_PORT:-5173}:5173"
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+    networks:
+      - peercast
+    depends_on:
+      server:
+        condition: service_healthy
+
+networks:
+  peercast:
+    driver: bridge
+
+volumes:
+  client_node_modules:
+  server_go_mod_cache:
+  server_go_build_cache:
