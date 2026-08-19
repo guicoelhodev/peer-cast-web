@@ -12,6 +12,7 @@ export type Participant = {
   videoState: VideoState;
   connected: boolean;
   stream: MediaStream;
+  audioStream: MediaStream;
 };
 
 export type LocalPeerState = {
@@ -35,7 +36,9 @@ export type PeerManager = {
   handleSignal: (message: SignalMessage) => Promise<void>;
   addParticipant: (
     peerId: string,
-    participant?: Partial<Omit<Participant, "peerId" | "stream" | "connected">>,
+    participant?: Partial<
+      Omit<Participant, "peerId" | "stream" | "audioStream" | "connected">
+    >,
   ) => Promise<void>;
   removeParticipant: (peerId: string) => void;
   setLocalState: (state: Partial<LocalPeerState>) => void;

@@ -64,7 +64,7 @@ export function createPeerManager(options: PeerManagerOptions): PeerManager {
   function ensurePeer(
     peerId: string,
     participant: Partial<
-      Omit<Participant, "peerId" | "stream" | "connected">
+      Omit<Participant, "peerId" | "stream" | "audioStream" | "connected">
     > = {},
   ) {
     let peer = peers.get(peerId);
@@ -88,6 +88,7 @@ export function createPeerManager(options: PeerManagerOptions): PeerManager {
         videoState: participant.videoState ?? "off",
         connected: false,
         stream: createStream(),
+        audioStream: createStream(),
       },
     };
     pc.onicecandidate = ({ candidate }) => {
@@ -106,15 +107,16 @@ export function createPeerManager(options: PeerManagerOptions): PeerManager {
         removeParticipant(peerId);
       else publish();
     };
-    pc.ontrack = ({ track, streams }) => {
-      const stream = streams[0];
-      if (stream) peer.participant.stream = stream;
-      else if (!peer.participant.stream.getTracks().includes(track))
-        peer.participant.stream.addTrack(track);
+    pc.ontrack = ({ track }) => {
+      const stream =
+        track.kind === "audio"
+          ? peer.participant.audioStream
+          : peer.participant.stream;
+      if (!stream.getTracks().includes(track)) stream.addTrack(track);
       if (track.kind === "video" && peer.participant.videoState === "off")
         peer.participant.videoState = "camera";
       track.onended = () => {
-        peer?.participant.stream.removeTrack(track);
+        stream.removeTrack(track);
         publish();
       };
       publish();
@@ -261,8 +263,14 @@ export function createPeerManager(options: PeerManagerOptions): PeerManager {
   ) {
     const fallbackStream = stream ?? createStream();
     localTracks.clear();
-    for (const track of tracks)
-      localTracks.set(track.id, { track, stream: fallbackStream });
+    for (const track of tracks) {
+      let trackStream = fallbackStream;
+      if (track.kind === "audio") {
+        trackStream = createStream();
+        trackStream.addTrack(track);
+      }
+      localTracks.set(track.id, { track, stream: trackStream });
+    }
     for (const peer of peers.values()) {
       let changed = false;
       for (const sender of peer.pc.getSenders()) {

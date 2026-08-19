@@ -200,6 +200,7 @@ export class MediaSession {
         audio: { suppressLocalAudioPlayback: false },
         systemAudio: "include",
         surfaceSwitching: "include",
+        windowAudio: "system",
       } as DisplayMediaStreamOptions);
       const video = stream.getVideoTracks()[0];
       if (!video)

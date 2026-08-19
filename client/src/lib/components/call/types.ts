@@ -4,6 +4,7 @@ export type CallParticipant = {
   id: string;
   displayName: string;
   stream?: MediaStream | null;
+  audioStream?: MediaStream | null;
   isHost?: boolean;
   microphoneMuted?: boolean;
   videoState?: VideoState;
