@@ -3,6 +3,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  envPrefix: ["VITE_", "PUBLIC_"],
   plugins: [tailwindcss(), sveltekit()],
   test: {
     projects: [

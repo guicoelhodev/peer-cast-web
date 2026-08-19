@@ -1,4 +1,5 @@
-const publicServerUrl = import.meta.env.PUBLIC_SERVER_URL;
+export const publicServerUrl =
+  import.meta.env.PUBLIC_SERVER_URL || "http://localhost:8080";
 
 export function buildApiUrl(path: string, serverUrl = publicServerUrl): URL {
   return buildServerUrl(path, serverUrl, false);

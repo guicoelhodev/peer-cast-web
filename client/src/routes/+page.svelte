@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import { createRoom } from '$lib/api/rooms';
-	import { buildWebSocketUrl } from '$lib/api/urls';
+	import { publicServerUrl } from '$lib/api/urls';
 	import { limitChatHistory, type ChatMessage } from '$lib/components/chat';
 	import { Lobby } from '$lib/components/lobby';
 	import { RoomLayout } from '$lib/components/layout';
@@ -12,7 +12,7 @@
 	import type { PeerManager, Participant } from '$lib/webrtc/types';
 	import { DEFAULT_QUALITY_PRESET_ID, QUALITY_PRESETS, type QualityPresetId } from '$lib/webrtc/quality';
 
-	const serverUrl = import.meta.env.PUBLIC_SERVER_URL || 'http://localhost:8080';
+	const serverUrl = publicServerUrl;
 	const qualityOptions = QUALITY_PRESETS.map((preset) => ({ id: preset.id, label: `${preset.id} · ${preset.height}p ${preset.fps}fps` }));
 	let roomId: string | null = null;
 	let displayName = '';
