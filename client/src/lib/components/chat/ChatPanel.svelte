@@ -22,7 +22,7 @@
 
 {#if open}
   <section
-    class={`chat-panel flex min-h-0 w-full flex-col overflow-hidden ${embedded ? "h-full bg-transparent" : "max-w-80 rounded-xl border border-slate-800 bg-slate-900/92 max-md:fixed max-md:inset-x-0 max-md:top-12 max-md:z-30 max-md:max-w-none max-md:rounded-none max-md:pb-[env(safe-area-inset-bottom)] md:my-3 md:mr-3"}`}
+    class={`chat-panel flex min-h-0 w-full flex-col overflow-hidden ${embedded ? "h-full bg-transparent max-md:justify-between" : "max-w-80 rounded-xl border border-slate-800 bg-slate-900/92 max-md:fixed max-md:inset-x-0 max-md:top-12 max-md:z-30 max-md:max-w-none max-md:rounded-none max-md:pb-[env(safe-area-inset-bottom)] md:my-3 md:mr-3"}`}
     aria-label="Room chat"
   >
     {#if !embedded}<header

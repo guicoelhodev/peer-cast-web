@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Icon from "@iconify/svelte";
   import {
     CallControls,
     CallGrid,
@@ -65,7 +64,7 @@
   class="room-shell grid min-h-dvh grid-cols-1 overflow-visible bg-background lg:h-dvh lg:grid-cols-[18rem_minmax(0,1fr)] lg:overflow-hidden"
 >
   <aside
-    class="app-sidebar order-2 flex min-h-0 flex-col border-t border-slate-800 bg-slate-900/78 lg:order-none lg:border-t-0 lg:border-r"
+    class="app-sidebar order-2 flex min-h-dvh flex-col border-t border-slate-800 bg-slate-900/78 lg:order-none lg:min-h-0 lg:border-t-0 lg:border-r"
     aria-label="Application navigation"
   >
     <div class="brand flex h-12 items-center border-b border-slate-800 px-4">
@@ -119,7 +118,9 @@
             </li>{/each}
         </ul>
       </div>
-      <div class="h-96 min-h-0 lg:h-auto lg:flex-1">
+      <div
+        class="min-h-96 max-h-[calc(100dvh-16rem)] flex-1 lg:min-h-0 lg:max-h-none"
+      >
         <ChatPanel
           open={true}
           embedded
@@ -131,7 +132,7 @@
       </div>
     </div>
   </aside>
-  <div class="room-main flex min-h-[75dvh] min-w-0 flex-col lg:min-h-0">
+  <div class="room-main flex h-dvh min-h-0 min-w-0 flex-col lg:h-auto">
     <section
       class="stage flex min-h-0 flex-1 flex-col overflow-auto p-2 lg:p-3"
     >
@@ -148,11 +149,13 @@
           {videoState}
           {quality}
           {qualityOptions}
+          {inviteCopied}
           {onToggleMicrophone}
           {onToggleCamera}
           {onToggleScreen}
           {onQualityChange}
           {onLeave}
+          onCopyInvite={copyInvite}
         />
       </div>
     </section>
@@ -164,15 +167,4 @@
     aria-label="Invite link"
     tabindex="-1"
   />
-  <button
-    class="fixed right-5 bottom-5 z-40 grid size-14 cursor-pointer place-items-center rounded-full bg-cyan-400 text-cyan-950 transition hover:scale-105 hover:bg-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 active:scale-95"
-    type="button"
-    onclick={copyInvite}
-    aria-label={inviteCopied ? "Invite link copied" : "Copy invite link"}
-    title={inviteCopied ? "Copied" : "Copy invite link"}
-    ><Icon
-      icon={inviteCopied ? "mdi:check" : "fluent-mdl2:add-friend"}
-      class="size-6"
-    /></button
-  >
 </main>

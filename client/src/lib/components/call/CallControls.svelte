@@ -12,6 +12,8 @@
     onToggleScreen,
     onLeave,
     onQualityChange,
+    onCopyInvite,
+    inviteCopied = false,
   }: {
     microphoneMuted: boolean;
     videoState?: "camera" | "screen" | "off";
@@ -23,6 +25,8 @@
     onToggleScreen: () => void;
     onLeave: () => void;
     onQualityChange?: (quality: string) => void;
+    onCopyInvite?: () => void;
+    inviteCopied?: boolean;
   } = $props();
   let deviceClass = $derived(
     mode === "devices"
@@ -126,6 +130,17 @@
       class="max-[22rem]:hidden">Leave</span
     ></button
   >
+  {#if onCopyInvite}<button
+      class={`flex min-w-20 items-center justify-center gap-1 rounded-lg border border-cyan-400/55 bg-cyan-950/35 px-2.5 py-2 text-[.68rem] text-cyan-200 hover:border-cyan-300 hover:text-cyan-100 focus-visible:outline-none ${deviceClass}`}
+      type="button"
+      onclick={onCopyInvite}
+      aria-label={inviteCopied ? "Invite link copied" : "Copy invite link"}
+      title={inviteCopied ? "Copied" : "Copy invite link"}
+      ><Icon
+        icon={inviteCopied ? "mdi:check" : "fluent-mdl2:add-friend"}
+        class="size-4 flex-none"
+      /><span class="max-[22rem]:hidden">Invite</span></button
+    >{/if}
   {#if mode !== "devices" && qualityOptions.length}<label
       class="quality grid gap-1 text-[.65rem] text-slate-400"
       ><span>Quality</span><select

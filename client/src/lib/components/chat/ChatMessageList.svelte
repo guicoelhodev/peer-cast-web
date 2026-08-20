@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class={`messages min-h-0 flex-1 overflow-y-auto ${embedded ? "p-0" : "p-3"}`}
+  class={`messages min-h-0 flex-1 overflow-y-auto ${embedded ? "p-0 max-md:flex-initial" : "p-3"}`}
   aria-live="polite"
   aria-label="Messages"
 >
