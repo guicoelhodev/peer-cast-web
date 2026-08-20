@@ -9,7 +9,6 @@ import (
 
 const (
 	defaultPingInterval = 30 * time.Second
-	defaultReadTimeout  = 60 * time.Second
 	defaultWriteTimeout = 10 * time.Second
 )
 
@@ -27,7 +26,6 @@ type readLimitSetter interface {
 type ClientOptions struct {
 	MaxPayloadBytes int
 	PingInterval    time.Duration
-	ReadTimeout     time.Duration
 	WriteTimeout    time.Duration
 	QueueSize       int
 }
@@ -38,9 +36,6 @@ func (o ClientOptions) withDefaults() ClientOptions {
 	}
 	if o.PingInterval <= 0 {
 		o.PingInterval = defaultPingInterval
-	}
-	if o.ReadTimeout <= 0 {
-		o.ReadTimeout = defaultReadTimeout
 	}
 	if o.WriteTimeout <= 0 {
 		o.WriteTimeout = defaultWriteTimeout
@@ -191,9 +186,7 @@ func (c *WebSocketClient) readPump() {
 	defer c.pumps.Done()
 	defer c.Close()
 	for {
-		readCtx, cancel := context.WithTimeout(c.ctx, c.options.ReadTimeout)
-		payload, err := c.connection.Read(readCtx)
-		cancel()
+		payload, err := c.connection.Read(c.ctx)
 		if err != nil {
 			return
 		}
