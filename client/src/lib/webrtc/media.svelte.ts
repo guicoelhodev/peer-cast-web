@@ -160,9 +160,15 @@ export class MediaSession {
     try {
       const stream = await this.requireMediaDevices("microphone").getUserMedia({
         video: false,
-        audio: this.selectedMicrophoneDeviceId
-          ? { deviceId: { exact: this.selectedMicrophoneDeviceId } }
-          : true,
+        audio: {
+          ...(this.selectedMicrophoneDeviceId
+            ? { deviceId: { exact: this.selectedMicrophoneDeviceId } }
+            : {}),
+          echoCancellation: { ideal: true },
+          noiseSuppression: { ideal: true },
+          autoGainControl: { ideal: true },
+          channelCount: { ideal: 1 },
+        },
       });
       if (!stream.getAudioTracks()[0])
         throw new MediaError(
